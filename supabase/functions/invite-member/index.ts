@@ -46,6 +46,15 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Invitations only grant member or admin
+    const inviteRole = role || "member";
+    if (inviteRole !== "member" && inviteRole !== "admin") {
+      return new Response(JSON.stringify({ error: "Invalid role" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Check caller is admin/owner
     const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -66,32 +75,37 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Record the invitation first: the signup trigger takes the org and the role from it
+    const { data: invitation, error: invitationError } = await serviceClient
+      .from("invitations")
+      .insert({ org_id, email, role: inviteRole, invited_by: callerId })
+      .select("id")
+      .single();
+
+    if (invitationError) {
+      return new Response(JSON.stringify({ error: invitationError.message }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Send magic link invite
     const { data: inviteData, error: inviteError } =
-      await serviceClient.auth.admin.inviteUserByEmail(email, {
-        data: { org_id, role: role || "member" },
-      });
+      await serviceClient.auth.admin.inviteUserByEmail(email);
 
     if (inviteError) {
+      await serviceClient.from("invitations").delete().eq("id", invitation.id);
       return new Response(JSON.stringify({ error: inviteError.message }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Record invitation
-    await serviceClient.from("invitations").insert({
-      org_id,
-      email,
-      role: role || "member",
-      invited_by: callerId,
-    });
-
     return new Response(JSON.stringify({ success: true, user: inviteData.user }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : "Unknown error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getMember, unauthorized } from "../_shared/member.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,9 +10,12 @@ const corsHeaders = {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const member = await getMember(req);
+  if (!member) return unauthorized(corsHeaders);
+
   try {
-    const { org_id } = await req.json();
-    if (!org_id) throw new Error("org_id required");
+    // Always the caller's org, never the one sent in the request
+    const org_id = member.orgId;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
