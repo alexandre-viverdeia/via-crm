@@ -2273,18 +2273,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      submit_application: {
-        Args: {
-          p_challenge?: string | null
-          p_company?: string | null
-          p_email: string
-          p_name: string
-          p_org_slug?: string | null
-          p_phone?: string | null
-          p_role?: string | null
-        }
-        Returns: string
-      }
+      create_default_pipeline: { Args: { p_org: string }; Returns: undefined }
       create_organization_for_user: {
         Args: {
           p_name: string
@@ -2316,6 +2305,18 @@ export type Database = {
         Returns: undefined
       }
       signup_allowed: { Args: never; Returns: boolean }
+      submit_application: {
+        Args: {
+          p_challenge?: string
+          p_company?: string
+          p_email: string
+          p_name: string
+          p_org_slug?: string
+          p_phone?: string
+          p_role?: string
+        }
+        Returns: string
+      }
       user_belongs_to_org: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
