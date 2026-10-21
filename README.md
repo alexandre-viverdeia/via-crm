@@ -39,7 +39,7 @@ O visual da Viver de IA está no `DESIGN.md`, escrito no ticket #3.
 
 ## Como rodar
 
-**No Lovable:** remixe o projeto. O banco, o login e a IA já vêm configurados.
+**No Lovable:** remixe o projeto. As tabelas, as funções do servidor e a IA vêm junto, mas o gatilho do cadastro não: ele fica no schema `auth`, que o remix não copia. Antes do primeiro cadastro, rode `supabase/migrations/20261021040000_gatilho_do_cadastro.sql` no banco novo (o agente roda com o `query_database` do conector do Lovable). Sem ele, o primeiro cadastro não cria a Organização e o CRM abre vazio.
 
 **No seu computador:**
 
