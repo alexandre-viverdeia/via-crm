@@ -22,7 +22,7 @@ describe("Application (landing page)", () => {
 
     await waitFor(() => expect(screen.getByText("Recebemos a sua aplicação")).toBeInTheDocument());
     expect(rpc).toHaveBeenCalledWith("submit_application", expect.objectContaining({
-      p_name: "Helena Martins", p_email: "helena@exemplo.com.br", p_company: "Laboratório Vida Plena", p_phone: null,
+      p_name: "Helena Martins", p_email: "helena@exemplo.com.br", p_company: "Laboratório Vida Plena", p_phone: undefined,
     }));
   });
 

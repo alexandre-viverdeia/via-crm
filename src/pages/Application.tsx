@@ -36,10 +36,10 @@ export default function Application() {
     const { error: rpcError } = await supabase.rpc("submit_application", {
       p_name: form.name,
       p_email: form.email,
-      p_phone: form.phone || null,
-      p_company: form.company || null,
-      p_role: form.role || null,
-      p_challenge: form.challenge || null,
+      p_phone: form.phone || undefined,
+      p_company: form.company || undefined,
+      p_role: form.role || undefined,
+      p_challenge: form.challenge || undefined,
     });
     setSending(false);
     if (rpcError) {
