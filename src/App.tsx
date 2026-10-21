@@ -23,7 +23,6 @@ const Activities = lazy(() => import("./pages/Activities"));
 const Tasks = lazy(() => import("./pages/Tasks"));
 const Reports = lazy(() => import("./pages/Reports"));
 const Settings = lazy(() => import("./pages/Settings"));
-const SecuritySettings = lazy(() => import("./pages/SecuritySettings"));
 const SalesGoals = lazy(() => import("./pages/SalesGoals"));
 const Team = lazy(() => import("./pages/Team"));
 const Application = lazy(() => import("./pages/Application"));
@@ -80,7 +79,6 @@ const App = () => (
                 <Route path="/reports" element={<SuspenseRoute><Reports /></SuspenseRoute>} />
                 <Route path="/sales-goals" element={<SuspenseRoute><SalesGoals /></SuspenseRoute>} />
                 <Route path="/settings" element={<SuspenseRoute><Settings /></SuspenseRoute>} />
-                <Route path="/settings/security" element={<SuspenseRoute><SecuritySettings /></SuspenseRoute>} />
                 <Route path="/team" element={<SuspenseRoute><Team /></SuspenseRoute>} />
               </Route>
               <Route path="*" element={<NotFound />} />

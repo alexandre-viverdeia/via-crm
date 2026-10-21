@@ -23,7 +23,6 @@ const routeLabels: Record<string, string> = {
   "/tasks": "Tarefas",
   "/sales-goals": "Metas",
   "/team": "Equipe",
-  "/settings/security": "Segurança",
 };
 
 interface AppHeaderProps {

@@ -15,7 +15,6 @@ import {
   Zap,
   Target,
   Plug,
-  Shield,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -53,7 +52,6 @@ const analyticsItems = [
 const adminItems = [
   { title: "Equipe", url: "/team", icon: Users },
   { title: "Configurações", url: "/settings", icon: Settings },
-  { title: "Segurança", url: "/settings/security", icon: Shield },
 ];
 
 export function AppSidebar() {

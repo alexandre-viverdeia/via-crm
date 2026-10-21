@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/hooks/useOrg";
+import { orgRevenueGoal, monthWonRevenue } from "@/lib/monthlyGoal";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Legend,
@@ -55,6 +56,7 @@ type ActivityRow = {
 type Contact = { id: string; first_name: string; last_name: string | null; status: string | null; created_at: string | null };
 type Profile = { id: string; name: string | null; email: string | null };
 type Pipeline = { id: string; name: string; is_default: boolean | null };
+type Goal = { goal_type: string; assign_type: string; period_month: number; period_year: number; target_value: number; created_at: string | null };
 
 type PeriodFilter = "today" | "this_week" | "this_month" | "this_quarter" | "this_year" | "all";
 
@@ -119,6 +121,7 @@ export default function Dashboard() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [members, setMembers] = useState<Profile[]>([]);
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
@@ -127,19 +130,17 @@ export default function Dashboard() {
   const [ownerFilter, setOwnerFilter] = useState("all");
   const [pipelineFilter, setPipelineFilter] = useState("all");
 
-  // Revenue goal (from org settings or default)
-  const monthlyGoal = 100000;
-
   const fetchAll = useCallback(async () => {
     if (!orgId) return;
     setLoading(true);
-    const [dRes, sRes, aRes, cRes, mRes, pRes] = await Promise.all([
+    const [dRes, sRes, aRes, cRes, mRes, pRes, gRes] = await Promise.all([
       supabase.from("deals").select("*").eq("org_id", orgId),
       supabase.from("pipeline_stages").select("*").eq("org_id", orgId).order("order"),
       supabase.from("activities").select("*").eq("org_id", orgId).order("created_at", { ascending: false }).limit(500),
       supabase.from("contacts").select("id,first_name,last_name,status,created_at").eq("org_id", orgId),
       supabase.from("profiles").select("id,name,email").eq("org_id", orgId),
       supabase.from("pipelines").select("id,name,is_default").eq("org_id", orgId),
+      supabase.from("sales_goals").select("goal_type,assign_type,period_month,period_year,target_value,created_at").eq("org_id", orgId),
     ]);
     setDeals((dRes.data as Deal[]) || []);
     setStages((sRes.data as Stage[]) || []);
@@ -147,6 +148,7 @@ export default function Dashboard() {
     setContacts((cRes.data as Contact[]) || []);
     setMembers((mRes.data as Profile[]) || []);
     setPipelines((pRes.data as Pipeline[]) || []);
+    setGoals((gRes.data as Goal[]) || []);
     setLoading(false);
     setLastRefresh(new Date());
   }, [orgId]);
@@ -192,6 +194,10 @@ export default function Dashboard() {
   const winRate = pct(wonDeals.length, totalClosed);
   const avgTicket = wonDeals.length > 0 ? wonRevenue / wonDeals.length : 0;
   const pipelineValue = openDeals.reduce((s, d) => s + (Number(d.value) || 0), 0);
+
+  // Monthly goal: the org revenue goal set on the Sales Goals page
+  const monthlyGoal = orgRevenueGoal(goals);
+  const monthRevenue = monthWonRevenue(deals);
 
   // Avg cycle (days from created to won)
   const avgCycle = useMemo(() => {
@@ -491,7 +497,14 @@ export default function Dashboard() {
             <CardTitle className="text-sm">Meta do Mês</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-center">
-            <GaugeChart value={wonRevenue} max={monthlyGoal} label={fmt(monthlyGoal)} />
+            {monthlyGoal ? (
+              <GaugeChart value={monthRevenue} max={monthlyGoal} label={fmt(monthlyGoal)} />
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-6 text-center">
+                <p className="text-sm text-muted-foreground">Sem meta de receita para este mês</p>
+                <Button variant="outline" size="sm" onClick={() => navigate("/sales-goals")}>Definir meta</Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

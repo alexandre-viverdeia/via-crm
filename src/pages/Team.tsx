@@ -4,16 +4,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/hooks/useOrg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   UserPlus, Shield, Trash2, Plus, Users, Crown, Mail,
@@ -22,16 +18,6 @@ import { useToast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-
-const PERMISSIONS = [
-  { key: "view_all_data", label: "Ver todos os dados" },
-  { key: "edit_any_record", label: "Editar qualquer registro" },
-  { key: "manage_users", label: "Gerenciar usuários" },
-  { key: "export_data", label: "Exportar dados" },
-  { key: "view_reports", label: "Ver relatórios" },
-  { key: "manage_billing", label: "Gerenciar cobrança" },
-  { key: "view_own_records", label: "Ver registros próprios" },
-];
 
 const ROLES: Array<{ value: string; label: string }> = [
   { value: "owner", label: "Proprietário" },
@@ -50,8 +36,6 @@ export default function Team() {
   const [inviteRole, setInviteRole] = useState("member");
   const [inviting, setInviting] = useState(false);
 
-  // RBAC permissions
-  const [permissions, setPermissions] = useState<any[]>([]);
 
   // Teams
   const [teams, setTeams] = useState<any[]>([]);
@@ -67,16 +51,14 @@ export default function Team() {
 
   const fetchAll = useCallback(async () => {
     if (!orgId) return;
-    const [{ data: profs }, { data: rl }, { data: inv }, { data: perms }, { data: tms }, { data: tmem }] = await Promise.all([
+    const [{ data: profs }, { data: rl }, { data: inv }, { data: tms }, { data: tmem }] = await Promise.all([
       supabase.from("profiles").select("*").eq("org_id", orgId),
       supabase.from("user_roles").select("*").eq("org_id", orgId),
       supabase.from("invitations").select("*").eq("org_id", orgId).is("accepted_at", null),
-      supabase.from("role_permissions").select("*").eq("org_id", orgId),
       supabase.from("teams").select("*").eq("org_id", orgId),
       supabase.from("team_members").select("*"),
     ]);
     setInvitations(inv || []);
-    setPermissions(perms || []);
     setTeams(tms || []);
     setTeamMembers(tmem || []);
     const merged = (profs || []).map((p) => {
@@ -87,23 +69,6 @@ export default function Team() {
   }, [orgId]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
-
-  // Seed default permissions if empty
-  useEffect(() => {
-    if (!orgId || permissions.length > 0) return;
-    const defaults: any[] = [];
-    for (const role of ["owner", "admin", "member"] as const) {
-      for (const p of PERMISSIONS) {
-        let allowed = true;
-        if (role === "member") {
-          allowed = p.key === "view_own_records" || p.key === "view_reports";
-        }
-        if (p.key === "manage_billing" && role !== "owner") allowed = false;
-        defaults.push({ org_id: orgId, role, permission: p.key, allowed });
-      }
-    }
-    supabase.from("role_permissions").insert(defaults).then(() => fetchAll());
-  }, [orgId, permissions.length]);
 
   const sendInvite = async () => {
     if (!orgId || !inviteEmail) return;
@@ -164,24 +129,6 @@ export default function Team() {
     toast({ title: "Convite cancelado" });
   };
 
-  const togglePermission = async (role: string, permission: string, currentlyAllowed: boolean) => {
-    if (!orgId) return;
-    const existing = permissions.find((p: any) => p.role === role && p.permission === permission);
-    if (existing) {
-      await supabase.from("role_permissions").update({ allowed: !currentlyAllowed }).eq("id", existing.id);
-    } else {
-      await supabase.from("role_permissions").insert({
-        org_id: orgId, role: role as any, permission, allowed: !currentlyAllowed,
-      });
-    }
-    fetchAll();
-  };
-
-  const getPermissionValue = (role: string, permission: string): boolean => {
-    const p = permissions.find((p: any) => p.role === role && p.permission === permission);
-    return p ? p.allowed : false;
-  };
-
   const createTeam = async () => {
     if (!orgId || !newTeamName) return;
     await supabase.from("teams").insert({ org_id: orgId, name: newTeamName });
@@ -222,13 +169,12 @@ export default function Team() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Equipe</h1>
-        <p className="text-muted-foreground text-sm">Gerencie membros, convites e permissões</p>
+        <p className="text-muted-foreground text-sm">Gerencie membros, convites e equipes</p>
       </div>
 
       <Tabs defaultValue="members">
         <TabsList>
           <TabsTrigger value="members">Membros</TabsTrigger>
-          <TabsTrigger value="permissions">Permissões</TabsTrigger>
           <TabsTrigger value="teams">Equipes</TabsTrigger>
         </TabsList>
 
@@ -351,64 +297,6 @@ export default function Team() {
           </Card>
         </TabsContent>
 
-        {/* ── Permissions Tab ── */}
-        <TabsContent value="permissions" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Controle de Acesso (RBAC)</CardTitle>
-              <CardDescription className="text-xs">Configure o que cada papel pode fazer na organização</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-xs w-[200px]">Permissão</TableHead>
-                      {ROLES.map((r) => (
-                        <TableHead key={r.value} className="text-xs text-center">{r.label}</TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {PERMISSIONS.map((perm) => (
-                      <TableRow key={perm.key}>
-                        <TableCell className="text-sm font-medium">{perm.label}</TableCell>
-                        {ROLES.map((r) => {
-                          const allowed = getPermissionValue(r.value, perm.key);
-                          const isOwnerPerm = r.value === "owner";
-                          return (
-                            <TableCell key={r.value} className="text-center">
-                              {isAdmin && !isOwnerPerm ? (
-                                <Select
-                                  value={allowed ? "yes" : "no"}
-                                  onValueChange={() => togglePermission(r.value, perm.key, allowed)}
-                                >
-                                  <SelectTrigger className={`h-7 text-[11px] w-20 mx-auto ${allowed ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="yes">Sim</SelectItem>
-                                    <SelectItem value="no">Não</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              ) : (
-                                <Badge variant={allowed ? "default" : "secondary"} className={`text-[10px] ${allowed ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
-                                  {allowed ? "Sim" : "Não"}
-                                </Badge>
-                              )}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ── Teams Tab ── */}
         <TabsContent value="teams" className="mt-4 space-y-4">
           {isAdmin && (
             <Card>
