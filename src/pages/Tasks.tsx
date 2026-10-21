@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { localDateInput, dateInputFromDueDate, dueDateFromDateInput } from "@/lib/dueDates";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -180,7 +181,7 @@ export default function Tasks() {
   const openCreate = () => {
     setFormTitle("");
     setFormBody("");
-    setFormDueDate(new Date().toISOString().split("T")[0]);
+    setFormDueDate(localDateInput());
     setFormContactId("none");
     setFormDealId("none");
     setFormUserId(user?.id || "");
@@ -191,7 +192,7 @@ export default function Tasks() {
   const openEdit = (task: Activity) => {
     setFormTitle(task.title);
     setFormBody(task.body || "");
-    setFormDueDate(task.due_date ? task.due_date.split("T")[0] : "");
+    setFormDueDate(dateInputFromDueDate(task.due_date));
     setFormContactId(task.contact_id || "none");
     setFormDealId(task.deal_id || "none");
     setFormUserId(task.user_id || user?.id || "");
@@ -206,7 +207,7 @@ export default function Tasks() {
       type: "task" as const,
       title: formTitle.trim(),
       body: formBody.trim() || null,
-      due_date: formDueDate ? new Date(formDueDate).toISOString() : null,
+      due_date: dueDateFromDateInput(formDueDate),
       contact_id: formContactId !== "none" ? formContactId : null,
       deal_id: formDealId !== "none" ? formDealId : null,
       user_id: formUserId || user?.id || null,

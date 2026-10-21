@@ -27,6 +27,7 @@ import {
   ChevronLeft, ChevronRight, Search,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { localDateInput, dueDateFromDateTimeInput, dateTimeInputFromDueDate } from "@/lib/dueDates";
 import type { Database } from "@/integrations/supabase/types";
 
 type Activity = Database["public"]["Tables"]["activities"]["Row"];
@@ -234,9 +235,9 @@ export default function Activities() {
     const map = new Map<string, Activity[]>();
     filtered.forEach((a) => {
       const dateStr = a.due_date
-        ? new Date(a.due_date).toISOString().split("T")[0]
+        ? localDateInput(new Date(a.due_date))
         : a.created_at
-          ? new Date(a.created_at).toISOString().split("T")[0]
+          ? localDateInput(new Date(a.created_at))
           : null;
       if (dateStr) {
         if (!map.has(dateStr)) map.set(dateStr, []);
@@ -498,9 +499,9 @@ export default function Activities() {
               <div key={d} className="bg-muted px-2 py-1.5 text-center text-[10px] font-medium text-muted-foreground">{d}</div>
             ))}
             {calendarDays.map((day, i) => {
-              const dateStr = day.date.toISOString().split("T")[0];
+              const dateStr = localDateInput(day.date);
               const dayActivities = activitiesByDate.get(dateStr) || [];
-              const isToday = dateStr === new Date().toISOString().split("T")[0];
+              const isToday = dateStr === localDateInput();
               return (
                 <div key={i} className={`min-h-[80px] bg-background p-1 ${!day.inMonth ? "opacity-40" : ""}`}>
                   <div className={`text-xs font-medium mb-0.5 ${isToday ? "flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
@@ -581,7 +582,7 @@ function ActivityCreateEditModal({ open, onOpenChange, activity, contacts, compa
       setType(activity.type);
       setTitle(activity.title);
       setBody(activity.body || "");
-      setDueDate(activity.due_date ? activity.due_date.slice(0, 16) : "");
+      setDueDate(dateTimeInputFromDueDate(activity.due_date));
       setDealId(activity.deal_id || "none");
       setContactId(activity.contact_id || "none");
       setAssignee(activity.user_id || "none");
@@ -611,7 +612,7 @@ function ActivityCreateEditModal({ open, onOpenChange, activity, contacts, compa
       type,
       title: title.trim(),
       body: body || null,
-      due_date: dueDate || null,
+      due_date: dueDateFromDateTimeInput(dueDate),
       deal_id: dealId !== "none" ? dealId : null,
       contact_id: resolvedContactId,
       company_id: resolvedCompanyId,
