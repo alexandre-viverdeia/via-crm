@@ -21,18 +21,11 @@ const Deals = lazy(() => import("./pages/Deals"));
 const DealDetail = lazy(() => import("./pages/DealDetail"));
 const Activities = lazy(() => import("./pages/Activities"));
 const Tasks = lazy(() => import("./pages/Tasks"));
-const Inbox = lazy(() => import("./pages/Inbox"));
-const EmailTemplates = lazy(() => import("./pages/EmailTemplates"));
-const EmailSequences = lazy(() => import("./pages/EmailSequences"));
-const LeadScoring = lazy(() => import("./pages/LeadScoring"));
 const Reports = lazy(() => import("./pages/Reports"));
-const Automations = lazy(() => import("./pages/Automations"));
 const Settings = lazy(() => import("./pages/Settings"));
-const Integrations = lazy(() => import("./pages/Integrations"));
 const SecuritySettings = lazy(() => import("./pages/SecuritySettings"));
 const SalesGoals = lazy(() => import("./pages/SalesGoals"));
 const Team = lazy(() => import("./pages/Team"));
-const Setup = lazy(() => import("./pages/Setup"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,7 +66,6 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Login />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/setup" element={<SuspenseRoute><Setup /></SuspenseRoute>} />
               
               <Route element={<AppLayout />}>
                 <Route path="/dashboard" element={<SuspenseRoute><Dashboard /></SuspenseRoute>} />
@@ -83,15 +75,9 @@ const App = () => (
                 <Route path="/deals/:id" element={<SuspenseRoute><DealDetail /></SuspenseRoute>} />
                 <Route path="/activities" element={<SuspenseRoute><Activities /></SuspenseRoute>} />
                 <Route path="/tasks" element={<SuspenseRoute><Tasks /></SuspenseRoute>} />
-                <Route path="/inbox" element={<SuspenseRoute><Inbox /></SuspenseRoute>} />
-                <Route path="/email-templates" element={<SuspenseRoute><EmailTemplates /></SuspenseRoute>} />
-                <Route path="/email-sequences" element={<SuspenseRoute><EmailSequences /></SuspenseRoute>} />
-                <Route path="/lead-scoring" element={<SuspenseRoute><LeadScoring /></SuspenseRoute>} />
                 <Route path="/reports" element={<SuspenseRoute><Reports /></SuspenseRoute>} />
-                <Route path="/automations" element={<SuspenseRoute><Automations /></SuspenseRoute>} />
                 <Route path="/sales-goals" element={<SuspenseRoute><SalesGoals /></SuspenseRoute>} />
                 <Route path="/settings" element={<SuspenseRoute><Settings /></SuspenseRoute>} />
-                <Route path="/settings/integrations" element={<SuspenseRoute><Integrations /></SuspenseRoute>} />
                 <Route path="/settings/security" element={<SuspenseRoute><SecuritySettings /></SuspenseRoute>} />
                 <Route path="/team" element={<SuspenseRoute><Team /></SuspenseRoute>} />
               </Route>

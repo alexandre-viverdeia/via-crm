@@ -17,15 +17,8 @@ const routeLabels: Record<string, string> = {
   "/companies": "Empresas",
   "/deals": "Negócios",
   "/activities": "Atividades",
-  
-  "/inbox": "Caixa de Entrada",
-  "/email-templates": "Templates de Email",
-  "/email-sequences": "Sequências de Email",
-  "/lead-scoring": "Lead Scoring",
   "/reports": "Relatórios",
-  "/automations": "Automações",
   "/settings": "Configurações",
-  "/settings/integrations": "Integrações",
 };
 
 interface AppHeaderProps {
@@ -44,7 +37,7 @@ export function AppHeader({ onOpenSearch, actions }: AppHeaderProps) {
     { label: "Nova Atividade", icon: ClipboardList, path: "/activities?action=new" },
   ];
 
-  const parts: { label: string; href?: string }[] = [{ label: "FlowCRM", href: "/" }];
+  const parts: { label: string; href?: string }[] = [{ label: "VIA CRM", href: "/" }];
 
   if (location.pathname.startsWith("/deals/") && location.pathname !== "/deals") {
     parts.push({ label: "Negócios", href: "/deals" });

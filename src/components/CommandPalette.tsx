@@ -19,12 +19,7 @@ const pages = [
   { label: "Negócios", icon: Handshake, path: "/deals" },
   { label: "Atividades", icon: Activity, path: "/activities" },
   { label: "Atividades", icon: Activity, path: "/activities" },
-  { label: "Caixa de Entrada", icon: Inbox, path: "/inbox" },
-  { label: "Templates de Email", icon: FileText, path: "/email-templates" },
-  { label: "Sequências", icon: Zap, path: "/email-sequences" },
-  { label: "Lead Scoring", icon: Target, path: "/lead-scoring" },
   { label: "Relatórios", icon: BarChart3, path: "/reports" },
-  { label: "Automações", icon: Zap, path: "/automations" },
   { label: "Configurações", icon: Settings, path: "/settings" },
 ];
 

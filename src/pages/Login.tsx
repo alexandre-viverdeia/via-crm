@@ -114,11 +114,9 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="flex flex-col items-center gap-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <Handshake className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">FlowCRM</h1>
-          <p className="text-sm text-muted-foreground">Gerencie seus relacionamentos com inteligência</p>
+          <img src="/brand/logo-via.png" alt="Viver de IA" className="h-7 dark:invert" />
+          <h1 className="text-2xl font-bold tracking-tight">VIA CRM</h1>
+          <p className="text-sm text-muted-foreground">Nenhum lead esquecido: todo dia você sabe quem chamar.</p>
         </div>
 
         <Card className="border-border">

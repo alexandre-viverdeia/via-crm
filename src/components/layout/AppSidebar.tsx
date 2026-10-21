@@ -46,22 +46,16 @@ const generalItems = [
 ];
 
 const emailItems = [
-  { title: "Caixa de Entrada", url: "/inbox", icon: Inbox },
-  { title: "Templates", url: "/email-templates", icon: FileText },
-  { title: "Sequências", url: "/email-sequences", icon: Zap },
 ];
 
 const analyticsItems = [
   { title: "Metas", url: "/sales-goals", icon: Target },
-  { title: "Lead Scoring", url: "/lead-scoring", icon: Target },
   { title: "Relatórios", url: "/reports", icon: BarChart3 },
-  { title: "Automações", url: "/automations", icon: Zap },
 ];
 
 const adminItems = [
   { title: "Equipe", url: "/team", icon: Users },
   { title: "Configurações", url: "/settings", icon: Settings },
-  { title: "Integrações", url: "/settings/integrations", icon: Plug },
   { title: "Segurança", url: "/settings/security", icon: Shield },
 ];
 
@@ -106,10 +100,8 @@ export function AppSidebar() {
       <Sidebar collapsible="icon" className="border-r border-border">
         <SidebarHeader className="p-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Handshake className="h-4 w-4 text-primary-foreground" />
-            </div>
-            {!collapsed && <span className="text-lg font-semibold tracking-tight">FlowCRM</span>}
+            <img src="/brand/icone-via.png" alt="Viver de IA" className="h-8 w-8 rounded-lg" />
+            {!collapsed && <span className="text-lg font-semibold tracking-tight">VIA CRM</span>}
           </div>
         </SidebarHeader>
         <SidebarContent>

@@ -15,9 +15,7 @@ const mainItems = [
 
 const moreItems = [
   { title: "Empresas", url: "/companies" },
-  { title: "Caixa de Entrada", url: "/inbox" },
   { title: "Relatórios", url: "/reports" },
-  { title: "Automações", url: "/automations" },
   { title: "Configurações", url: "/settings" },
 ];
 

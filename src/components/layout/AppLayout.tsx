@@ -6,8 +6,6 @@ import { AppHeader } from "./AppHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { CommandPalette } from "@/components/CommandPalette";
 import { AICopilot } from "@/components/crm/AICopilot";
-import { OnboardingChecklist } from "@/components/crm/OnboardingChecklist";
-import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -58,8 +56,6 @@ export function AppLayout() {
       {isMobile && <MobileBottomNav />}
       <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
       <AICopilot />
-      <OnboardingChecklist />
-      <OnboardingModal />
     </SidebarProvider>
   );
 }

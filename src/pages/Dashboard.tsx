@@ -354,7 +354,7 @@ export default function Dashboard() {
   if (!orgId) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <h2 className="mb-2 text-xl font-semibold">Bem-vindo ao FlowCRM!</h2>
+        <h2 className="mb-2 text-xl font-semibold">Bem-vindo ao VIA CRM!</h2>
         <p className="text-muted-foreground">Vá em Configurações para criar sua organização.</p>
       </div>
     );
@@ -657,31 +657,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm">Distribuição de Lead Score</CardTitle>
-              <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => navigate("/lead-scoring")}>
-                Ver scoring <ArrowRight className="ml-1 h-3 w-3" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={scoreDistribution}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="label" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="count" radius={[3, 3, 0, 0]}>
-                  {scoreDistribution.map((_, i) => (
-                    <Cell key={i} fill={["hsl(var(--muted-foreground))", "hsl(var(--warning))", "hsl(38, 92%, 50%)", "hsl(var(--primary))", "hsl(var(--success))"][i]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
       </div>
 
       {/* ── Row 5: At-risk deals ── */}
