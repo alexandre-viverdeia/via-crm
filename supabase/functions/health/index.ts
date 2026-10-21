@@ -25,6 +25,7 @@ serve(async (req) => {
     const status = error ? "degraded" : "healthy";
     const response = {
       status,
+      app: "via-crm",
       request_id: requestId,
       timestamp: new Date().toISOString(),
       latency_ms: Date.now() - start,
