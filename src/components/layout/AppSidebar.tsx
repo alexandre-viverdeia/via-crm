@@ -45,9 +45,6 @@ const generalItems = [
   { title: "Tarefas", url: "/tasks", icon: CheckSquare },
 ];
 
-const emailItems = [
-];
-
 const analyticsItems = [
   { title: "Metas", url: "/sales-goals", icon: Target },
   { title: "Relatórios", url: "/reports", icon: BarChart3 },
@@ -132,7 +129,6 @@ export function AppSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          {renderNavGroup(emailItems, "Email")}
           {renderNavGroup(analyticsItems, "Analytics")}
           {renderNavGroup(adminItems, "Admin")}
         </SidebarContent>

@@ -870,6 +870,7 @@ function AppearanceTab() {
   ];
 
   const accents = [
+    { value: "via", label: "Viver de IA", color: "hsl(214, 71%, 14%)" },
     { value: "blue", label: "Azul", color: "hsl(221, 83%, 53%)" },
     { value: "violet", label: "Violeta", color: "hsl(262, 83%, 58%)" },
     { value: "emerald", label: "Esmeralda", color: "hsl(160, 84%, 39%)" },

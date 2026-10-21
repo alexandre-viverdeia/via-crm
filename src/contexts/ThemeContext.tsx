@@ -17,13 +17,14 @@ const ThemeContext = createContext<ThemeContextType>({
   setTheme: () => {},
   density: "normal",
   setDensity: () => {},
-  accentColor: "blue",
+  accentColor: "via",
   setAccentColor: () => {},
 });
 
 export const useTheme = () => useContext(ThemeContext);
 
 const ACCENT_COLORS: Record<string, { light: string; dark: string; ring: string }> = {
+  via: { light: "214 71% 14%", dark: "214 65% 72%", ring: "214 71% 14%" },
   blue: { light: "221 83% 53%", dark: "217 91% 60%", ring: "221 83% 53%" },
   violet: { light: "262 83% 58%", dark: "263 70% 50%", ring: "262 83% 58%" },
   emerald: { light: "160 84% 39%", dark: "160 84% 39%", ring: "160 84% 39%" },
@@ -34,7 +35,7 @@ const ACCENT_COLORS: Record<string, { light: string; dark: string; ring: string 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => (localStorage.getItem("fc-theme") as Theme) || "light");
   const [density, setDensityState] = useState<Density>(() => (localStorage.getItem("fc-density") as Density) || "normal");
-  const [accentColor, setAccentState] = useState(() => localStorage.getItem("fc-accent") || "blue");
+  const [accentColor, setAccentState] = useState(() => localStorage.getItem("fc-accent") || "via");
 
   const applyTheme = (t: Theme) => {
     const root = document.documentElement;
@@ -50,7 +51,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const applyAccent = (color: string) => {
     const root = document.documentElement;
     const isDark = root.classList.contains("dark");
-    const palette = ACCENT_COLORS[color] || ACCENT_COLORS.blue;
+    const palette = ACCENT_COLORS[color] || ACCENT_COLORS.via;
     const val = isDark ? palette.dark : palette.light;
     root.style.setProperty("--primary", val);
     root.style.setProperty("--ring", palette.ring);
