@@ -13,6 +13,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
+import { stageConversionRates } from "@/lib/funnel";
 import { useOrg } from "@/hooks/useOrg";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -39,7 +40,7 @@ type ActivityRow = {
   id: string; type: string; title: string; due_date: string | null;
   completed_at: string | null; created_at: string | null; user_id: string | null;
 };
-type Contact = { id: string; first_name: string; last_name: string | null; status: string | null; lead_score: number | null; created_at: string | null; owner_id: string | null; };
+type Contact = { id: string; first_name: string; last_name: string | null; status: string | null; created_at: string | null; owner_id: string | null; };
 type Company = { id: string; name: string };
 
 type PeriodFilter = "all" | "this_month" | "last_month" | "this_quarter" | "this_year";
@@ -127,7 +128,7 @@ export default function Reports() {
       supabase.from("pipelines").select("id,name,is_default").eq("org_id", orgId),
       supabase.from("profiles").select("id,name,email").eq("org_id", orgId),
       supabase.from("activities").select("*").eq("org_id", orgId).order("created_at", { ascending: false }).limit(1000),
-      supabase.from("contacts").select("id,first_name,last_name,status,lead_score,created_at,owner_id").eq("org_id", orgId),
+      supabase.from("contacts").select("id,first_name,last_name,status,created_at,owner_id").eq("org_id", orgId),
       supabase.from("companies").select("id,name").eq("org_id", orgId),
     ]);
     setDeals((dRes.data as Deal[]) || []);
@@ -336,12 +337,11 @@ function SalesReport({ deals, stages, members, companies, allDeals, periodRange 
     [members, deals]
   );
 
-  // Conversion between stages
-  const stageConversion = useMemo(() => stages.map((s, i) => {
-    const count = deals.filter((d) => d.stage_id === s.id).length;
-    const prevCount = i > 0 ? deals.filter((d) => d.stage_id === stages[i - 1].id).length : count;
-    return { name: s.name, rate: i === 0 ? 100 : pct(count, prevCount) };
-  }), [stages, deals]);
+  // Conversion between stages, as a funnel (see stageConversionRates).
+  const stageConversion = useMemo(() => {
+    const rates = stageConversionRates(stages, deals);
+    return stages.map((s, i) => ({ name: s.name, rate: rates[i] }));
+  }, [stages, deals]);
 
   // Avg time per stage
   const avgTimePerStage = useMemo(() => stages.map((s) => {
@@ -349,7 +349,7 @@ function SalesReport({ deals, stages, members, companies, allDeals, periodRange 
     if (sd.length === 0) return { name: s.name, days: 0 };
     const total = sd.reduce((sum, d) => {
       const c = new Date(d.created_at!); const u = d.updated_at ? new Date(d.updated_at) : new Date();
-      return sum + Math.floor((u.getTime() - c.getTime()) / 86400000);
+      return sum + Math.max(0, Math.floor((u.getTime() - c.getTime()) / 86400000));
     }, 0);
     return { name: s.name, days: Math.round(total / sd.length) };
   }), [stages, deals]);
@@ -917,7 +917,7 @@ function ContactsReport({ contacts, members }: { contacts: Contact[]; members: P
   const exportCSV = () => {
     downloadCSV(contacts.map((c) => ({
       Nome: `${c.first_name} ${c.last_name || ""}`.trim(),
-      Status: c.status, Score: c.lead_score,
+      Status: c.status,
       Dono: members.find((m) => m.id === c.owner_id)?.name || "",
       Criado: c.created_at,
     })), "relatorio-contatos");
@@ -1015,7 +1015,7 @@ function CustomReportBuilder({ deals, contacts, activities, stages, members, com
       { key: "created_at", label: "Criado em" },
     ],
     contacts: [
-      { key: "name", label: "Nome" }, { key: "status", label: "Status" }, { key: "lead_score", label: "Score" },
+      { key: "name", label: "Nome" }, { key: "status", label: "Status" },
       { key: "owner", label: "Dono" }, { key: "created_at", label: "Criado em" },
     ],
     activities: [
@@ -1063,7 +1063,6 @@ function CustomReportBuilder({ deals, contacts, activities, stages, members, com
     } else if (entity === "contacts") {
       return contacts.map((c) => ({
         name: `${c.first_name} ${c.last_name || ""}`.trim(), status: c.status || "—",
-        lead_score: String(c.lead_score || 0),
         owner: members.find((m) => m.id === c.owner_id)?.name || "—",
         created_at: c.created_at?.slice(0, 10) || "—",
       }));

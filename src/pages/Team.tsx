@@ -27,7 +27,6 @@ const PERMISSIONS = [
   { key: "view_all_data", label: "Ver todos os dados" },
   { key: "edit_any_record", label: "Editar qualquer registro" },
   { key: "manage_users", label: "Gerenciar usuários" },
-  { key: "create_automations", label: "Criar automações" },
   { key: "export_data", label: "Exportar dados" },
   { key: "view_reports", label: "Ver relatórios" },
   { key: "manage_billing", label: "Gerenciar cobrança" },

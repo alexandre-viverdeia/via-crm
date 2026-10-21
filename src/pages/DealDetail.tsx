@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { DealQualification } from "@/components/crm/DealQualification";
+import { FollowUpAIDialog } from "@/components/crm/FollowUpAIDialog";
 import { useOrg } from "@/hooks/useOrg";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   ArrowLeft, Trophy, XCircle, Building2, User, Calendar, Percent,
-  Phone, Mail, FileText, CheckSquare, CalendarDays, Edit2, Check, X,
+  Phone, Mail, FileText, CheckSquare, CalendarDays, Edit2, Check, X, Sparkles,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
@@ -67,6 +68,7 @@ export default function DealDetail() {
 
   // Loss modal
   const [lossModalOpen, setLossModalOpen] = useState(false);
+  const [followUpOpen, setFollowUpOpen] = useState(false);
   const [lossReason, setLossReason] = useState("");
   const [lossNote, setLossNote] = useState("");
 
@@ -163,6 +165,28 @@ export default function DealDetail() {
     toast({ title: "Negócio marcado como perdido" });
   };
 
+  // What the AI reads to write the follow-up: who the lead is, where the deal stands and what happened so far.
+  const followUpContext = () => {
+    const daysQuiet = deal.updated_at ? Math.floor((Date.now() - new Date(deal.updated_at).getTime()) / 86400000) : 0;
+    const history = activities.slice(0, 5).map((a) => `- ${activityLabels[a.type]}: ${a.title}${a.body ? ` (${a.body})` : ""}`).join("\n");
+    return [
+      `Negócio: ${deal.title}, na etapa "${currentStage?.name ?? "sem etapa"}", parado há ${daysQuiet} dias.`,
+      contact ? `Contato: ${contact.first_name} ${contact.last_name ?? ""}${contact.title ? `, ${contact.title}` : ""}.` : "",
+      company ? `Empresa: ${company.name}${company.industry ? `, setor de ${company.industry}` : ""}.` : "",
+      history ? `Últimas interações:\n${history}` : "Ainda não houve interação registrada.",
+    ].filter(Boolean).join("\n");
+  };
+
+  const saveFollowUp = async (message: string) => {
+    if (!orgId) return;
+    await supabase.from("activities").insert({
+      org_id: orgId, deal_id: deal.id, contact_id: deal.contact_id, type: "note",
+      title: "Follow-up escrito pela IA", body: message, user_id: user?.id, completed_at: new Date().toISOString(),
+    });
+    fetchDeal();
+    toast({ title: "Follow-up salvo no histórico" });
+  };
+
   const addActivity = async () => {
     if (!orgId || !activityForm.title) return;
     await supabase.from("activities").insert({
@@ -253,6 +277,11 @@ export default function DealDetail() {
         {/* Quick actions */}
         {deal.status === "open" && (
           <div className="flex gap-2">
+            {contact && (
+              <Button onClick={() => setFollowUpOpen(true)}>
+                <Sparkles className="mr-2 h-4 w-4" />Follow-up com IA
+              </Button>
+            )}
             <Button variant="outline" onClick={markAsWon} className="text-success border-success/30 hover:bg-success/10">
               <Trophy className="mr-2 h-4 w-4" />Ganho
             </Button>
@@ -469,6 +498,15 @@ export default function DealDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {contact && (
+        <FollowUpAIDialog
+          open={followUpOpen}
+          onOpenChange={setFollowUpOpen}
+          context={followUpContext()}
+          contactName={contact.first_name}
+          onSave={saveFollowUp}
+        />
+      )}
     </div>
   );
 }

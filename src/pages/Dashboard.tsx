@@ -52,7 +52,7 @@ type ActivityRow = {
   completed_at: string | null; created_at: string | null; user_id: string | null;
   deal_id: string | null; contact_id: string | null;
 };
-type Contact = { id: string; first_name: string; last_name: string | null; lead_score: number; status: string | null; created_at: string | null };
+type Contact = { id: string; first_name: string; last_name: string | null; status: string | null; created_at: string | null };
 type Profile = { id: string; name: string | null; email: string | null };
 type Pipeline = { id: string; name: string; is_default: boolean | null };
 
@@ -137,7 +137,7 @@ export default function Dashboard() {
       supabase.from("deals").select("*").eq("org_id", orgId),
       supabase.from("pipeline_stages").select("*").eq("org_id", orgId).order("order"),
       supabase.from("activities").select("*").eq("org_id", orgId).order("created_at", { ascending: false }).limit(500),
-      supabase.from("contacts").select("id,first_name,last_name,lead_score,status,created_at").eq("org_id", orgId),
+      supabase.from("contacts").select("id,first_name,last_name,status,created_at").eq("org_id", orgId),
       supabase.from("profiles").select("id,name,email").eq("org_id", orgId),
       supabase.from("pipelines").select("id,name,is_default").eq("org_id", orgId),
     ]);
@@ -301,23 +301,6 @@ export default function Dashboard() {
     });
     return days.map((d, i) => ({ day: d, count: counts[i] }));
   }, [filteredActivities]);
-
-  // ── Lead score distribution ────────
-  const scoreDistribution = useMemo(() => {
-    const buckets = [
-      { label: "0-20", min: 0, max: 20, count: 0 },
-      { label: "21-40", min: 21, max: 40, count: 0 },
-      { label: "41-60", min: 41, max: 60, count: 0 },
-      { label: "61-80", min: 61, max: 80, count: 0 },
-      { label: "81-100", min: 81, max: 100, count: 0 },
-    ];
-    contacts.forEach((c) => {
-      const s = c.lead_score || 0;
-      const bucket = buckets.find((b) => s >= b.min && s <= b.max);
-      if (bucket) bucket.count++;
-    });
-    return buckets;
-  }, [contacts]);
 
   // ── At-risk deals ──────────────────
   const atRiskDeals = useMemo(() => {

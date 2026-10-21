@@ -1,102 +1,46 @@
-# FlowCRM
+# VIA CRM
 
-CRM B2B completo com AI nativa, pipeline visual e automações.
+O núcleo de um CRM que acaba com o lead esquecido: todo contato que chega entra no funil, ganha um próximo passo com data e aparece para ser chamado no dia certo.
+
+É o CRM de referência da aula **"Como montar a especificação técnica de um projeto de IA"**, da Viver de IA. Use como referência do que o método entrega, ou remixe e expanda em vez de começar do zero. O método e o kit da aula estão em [github.com/alexandre-viverdeia/aula-especificacao-ia](https://github.com/alexandre-viverdeia/aula-especificacao-ia).
+
+## O que tem
+
+- **Landing page de aplicação** (`/aplicacao`): o formulário cria o contato, a empresa e o negócio no primeiro estágio do funil, com uma tarefa de primeiro contato para as próximas horas.
+- **Funil de negócios** em kanban, com empresas, contatos e o histórico de cada negócio.
+- **Tarefas do dia**: as abas Hoje, Vencidas e Amanhã mostram quem chamar.
+- **Negócios em risco**: o painel e o menu "Em Risco" mostram os negócios parados há mais de 14 dias.
+- **Follow-up com IA**: no negócio, a IA lê o histórico e escreve a mensagem para retomar o contato.
+- **Painel do dono, metas de vendas e relatórios**: receita, conversão por estágio, tempo médio em cada estágio e motivos de perda.
+- **Importação de contatos e empresas** por CSV, com o mapeamento das colunas.
+- **Time**: convite por e-mail e papéis de acesso. O primeiro cadastro cria a empresa (com um funil padrão) e vira dono; os próximos entram por convite.
 
 ## Stack
 
-- **Frontend:** React 18 + TypeScript + Tailwind CSS + Vite
-- **Backend:** Lovable Cloud (Supabase — PostgreSQL, Auth, Realtime, Edge Functions)
-- **AI:** Claude via Edge Function `ai-copilot`
-- **Componentes:** shadcn/ui, Recharts, @dnd-kit
+- React, TypeScript, Vite, Tailwind CSS e shadcn/ui
+- Lovable Cloud: banco Postgres com Row Level Security, login e funções do servidor
+- Lovable AI, chamado pelas funções `ai-email`, `ai-copilot` e `ai-insights`
+- Vitest e Testing Library
 
-## Instalação Local
+## Como rodar
+
+**No Lovable:** remixe o projeto. O banco, o login e a IA já vêm configurados.
+
+**No seu computador:**
 
 ```bash
-# Clonar o repositório
-git clone <YOUR_GIT_URL>
-cd flowcrm
-
-# Instalar dependências
 npm install
-
-# Configurar variáveis de ambiente
-cp .env.example .env
-# Editar .env com suas credenciais Supabase
-
-# Iniciar servidor de desenvolvimento
+cp .env.example .env   # preencha com os dados do seu projeto
 npm run dev
 ```
 
-## Variáveis de Ambiente
-
-| Variável | Obrigatória | Descrição |
-|----------|------------|-----------|
-| `VITE_SUPABASE_URL` | ✅ | URL do projeto Supabase |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅ | Chave pública (anon) do Supabase |
-| `VITE_SUPABASE_PROJECT_ID` | ✅ | ID do projeto |
-
-### Secrets (Edge Functions)
-
-Configurar via Lovable Cloud:
-
-| Secret | Uso |
-|--------|-----|
-| `ANTHROPIC_API_KEY` | AI Copilot (Claude) |
-| `GOOGLE_CLIENT_ID/SECRET` | Google Calendar |
-| `SLACK_BOT_TOKEN` | Notificações Slack |
-| `EVOLUTION_API_URL/KEY` | WhatsApp |
-| `SENTRY_DSN` | Monitoramento de erros |
-
-## Módulos
-
-- **Dashboard** — KPIs, gráficos, métricas em tempo real
-- **Contatos & Empresas** — CRUD completo, filtros, tags, lead scoring
-- **Pipeline Kanban** — Drag-and-drop, 3 visualizações, qualificação BANT
-- **Atividades** — Calls, emails, reuniões, notas, tarefas
-- **Email** — Sync Gmail/Outlook, templates, sequências, tracking
-- **Automações** — Builder visual trigger→conditions→actions
-- **AI Copilot** — Chat contextual, insights, geração de email
-- **Integrações** — Slack, Google Calendar, WhatsApp, Zapier/Make, API REST
-- **Configurações** — Pipelines, campos customizados, RBAC, billing
-
-## Segurança
-
-- RLS em todas as tabelas (isolamento por `org_id`)
-- RBAC: Owner / Admin / Member
-- Audit log de ações sensíveis
-- Sanitização de inputs (DOMPurify)
-- Error boundaries por componente
-- Detecção de modo offline
-
-## API Pública
-
-Endpoints disponíveis:
-
-```
-GET    /functions/v1/public-api/contacts
-POST   /functions/v1/public-api/contacts
-PUT    /functions/v1/public-api/contacts/:id
-DELETE /functions/v1/public-api/contacts/:id
+```bash
+npm test        # testes
+npm run build   # build de produção
 ```
 
-Autenticação: `Authorization: Bearer fc_xxx`
-
-Entidades: `contacts`, `companies`, `deals`, `activities`
-
-## Health Check
-
-```
-GET /functions/v1/health
-```
-
-Retorna status do banco, latência e timestamp.
-
-## Deploy
-
-1. Abra o projeto no [Lovable](https://lovable.dev)
-2. Clique em **Share → Publish**
-3. (Opcional) Conecte um domínio customizado em **Settings → Domains**
+As mudanças no banco ficam em `supabase/migrations/`, e o esquema completo em `.lovable/consolidated_schema.sql`.
 
 ## Licença
 
-Proprietário — todos os direitos reservados.
+Projeto aberto para estudo e uso como base dos seus próprios projetos, feito pela Viver de IA.

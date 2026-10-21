@@ -2273,6 +2273,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      submit_application: {
+        Args: {
+          p_challenge?: string | null
+          p_company?: string | null
+          p_email: string
+          p_name: string
+          p_org_slug?: string | null
+          p_phone?: string | null
+          p_role?: string | null
+        }
+        Returns: string
+      }
       create_organization_for_user: {
         Args: {
           p_name: string
